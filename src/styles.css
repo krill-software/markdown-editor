@@ -1,0 +1,203 @@
+@font-face {
+  font-family: "Hasklig";
+  font-weight: 400;
+  font-style: normal;
+  font-display: block;
+  src: url("/src/assets/fonts/Hasklig-Regular.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Hasklig";
+  font-weight: 700;
+  font-style: normal;
+  font-display: block;
+  src: url("/src/assets/fonts/Hasklig-Bold.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Hasklig";
+  font-weight: 400;
+  font-style: italic;
+  font-display: block;
+  src: url("/src/assets/fonts/Hasklig-Italic.woff2") format("woff2");
+}
+@font-face {
+  font-family: "Hasklig";
+  font-weight: 700;
+  font-style: italic;
+  font-display: block;
+  src: url("/src/assets/fonts/Hasklig-BoldItalic.woff2") format("woff2");
+}
+
+:root {
+  --fm-mono: "Hasklig", "Source Code Pro", "JetBrains Mono", ui-monospace, monospace;
+
+  --fm-bg: #FAFAFF;
+  --fm-text: #30343F;
+  --fm-muted: #878472;
+  --fm-accent: #DD7596;
+  --fm-selection: rgba(221, 117, 150, 0.22);
+  --fm-status-bg: rgba(250, 250, 255, 0.85);
+  --fm-rule: rgba(48, 52, 63, 0.08);
+
+  --fm-font-size: 16px;
+  --fm-line-height: 1.6;
+  --fm-column: 70ch;
+  --fm-pad-y: clamp(32px, 6vh, 80px);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  background: var(--fm-bg);
+  color: var(--fm-text);
+  font-family: var(--fm-mono);
+  font-size: var(--fm-font-size);
+  line-height: var(--fm-line-height);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: "calt" 1, "liga" 1;
+  overscroll-behavior: none;
+}
+
+body {
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  cursor: default;
+}
+
+#editor-root {
+  flex: 1 1 auto;
+  min-height: 0;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.cm-editor {
+  height: 100%;
+  background: transparent;
+  color: var(--fm-text);
+  font-family: var(--fm-mono);
+  font-size: var(--fm-font-size);
+  line-height: var(--fm-line-height);
+  outline: none;
+}
+
+.cm-editor.cm-focused {
+  outline: none;
+}
+
+.cm-editor .cm-scroller {
+  font-family: var(--fm-mono);
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-top: var(--fm-pad-y);
+  padding-bottom: var(--fm-pad-y);
+  padding-inline: max(24px, calc((100% - var(--fm-column)) / 2));
+}
+
+.cm-editor .cm-content {
+  caret-color: var(--fm-accent);
+  color: var(--fm-text);
+  padding: 0;
+  max-width: none;
+}
+
+.cm-editor .cm-line {
+  padding: 0;
+}
+
+.cm-cursor {
+  border-left-color: var(--fm-accent);
+  border-left-width: 2px;
+}
+
+.cm-selectionBackground,
+.cm-content ::selection,
+.cm-line ::selection {
+  background: var(--fm-selection) !important;
+}
+
+.cm-activeLine {
+  background: transparent;
+}
+
+.cm-editor .cm-activeLine,
+.cm-editor .cm-activeLineGutter {
+  background: transparent;
+}
+
+/* Muted markdown syntax — applied by our decoration extension */
+.cm-md-mark {
+  color: var(--fm-muted);
+}
+
+.cm-md-heading {
+  font-weight: 700;
+}
+.cm-md-emphasis {
+  font-style: italic;
+}
+.cm-md-strong {
+  font-weight: 700;
+}
+.cm-md-inline-code,
+.cm-md-code-block {
+  color: var(--fm-text);
+  background: var(--fm-rule);
+  border-radius: 3px;
+  padding: 0 2px;
+}
+.cm-md-link {
+  color: var(--fm-accent);
+  text-decoration: none;
+}
+.cm-md-quote {
+  color: var(--fm-muted);
+  font-style: italic;
+}
+
+#status-line {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 6px 20px 8px;
+  border-top: 1px solid var(--fm-rule);
+  background: var(--fm-status-bg);
+  color: var(--fm-muted);
+  font-family: var(--fm-mono);
+  font-size: 12px;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+#status-name {
+  flex: 1 1 auto;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+#status-dirty {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background-color 120ms ease;
+}
+
+#status-dirty[data-dirty="true"] {
+  background: var(--fm-accent);
+}
+
+#status-words {
+  flex: 0 0 auto;
+  font-variant-numeric: tabular-nums;
+}
