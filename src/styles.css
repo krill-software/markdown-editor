@@ -133,23 +133,96 @@ body {
   user-select: none;
 }
 
-#titlebar-drag {
-  flex: 1 1 auto;
+#menu-bar {
+  flex: 0 0 auto;
   display: flex;
-  align-items: center;
-  padding: 0 14px;
-  min-width: 0;
-  cursor: default;
+  height: 100%;
+  padding-left: 6px;
 }
 
-#titlebar-title {
-  color: var(--fm-muted);
+.menu-trigger {
+  background: transparent;
+  border: 0;
+  padding: 0 10px;
+  margin: 0;
+  color: var(--fm-text);
+  font-family: var(--fm-mono);
   font-size: 12px;
-  letter-spacing: 0.02em;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  cursor: default;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  transition: background-color 100ms ease;
+}
+
+.menu-trigger:hover,
+.menu-trigger[data-open="true"] {
+  background: rgba(48, 52, 63, 0.06);
+}
+
+.menu-trigger:focus {
+  outline: none;
+}
+
+.menu-dropdown {
+  position: absolute;
+  z-index: 1000;
+  background: var(--fm-bg);
+  border: 1px solid var(--fm-rule);
+  border-radius: 4px;
+  box-shadow: 0 6px 20px rgba(48, 52, 63, 0.14);
+  padding: 4px 0;
+  min-width: 240px;
+  font-family: var(--fm-mono);
+  font-size: 12px;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 6px 14px;
+  gap: 24px;
+  background: transparent;
+  border: 0;
+  color: var(--fm-text);
+  font-family: inherit;
+  font-size: inherit;
+  cursor: default;
+  text-align: left;
+  transition: background-color 80ms ease;
+}
+
+.menu-item:hover {
+  background: rgba(221, 117, 150, 0.12);
+}
+
+.menu-item:focus {
+  outline: none;
+}
+
+.menu-item-label {
+  flex: 1 1 auto;
   white-space: nowrap;
-  pointer-events: none;
+}
+
+.menu-item-shortcut {
+  flex: 0 0 auto;
+  color: var(--fm-muted);
+  letter-spacing: 0.02em;
+}
+
+.menu-separator {
+  margin: 4px 0;
+  height: 1px;
+  background: var(--fm-rule);
+}
+
+#titlebar-drag {
+  flex: 1 1 auto;
+  min-width: 0;
+  cursor: default;
 }
 
 #titlebar-controls {
@@ -572,15 +645,16 @@ body[data-mode="preview"] #editor-root {
   background: transparent;
 }
 
-/* Paragraph focus mode: dim lines outside the cursor's paragraph */
-.cm-editor .cm-focus-dim {
-  opacity: 0.28;
-  transition: opacity 180ms ease;
+/* Paragraph focus mode: fade lines outside the cursor's paragraph */
+.cm-editor .cm-focus-dim,
+.cm-editor .cm-focus-dim .cm-md-mark {
+  color: var(--fm-muted);
+  transition: color 180ms ease;
 }
 
-/* Muted markdown syntax — applied by our decoration extension */
+/* Markdown syntax markers — accent color (edit mode only) */
 .cm-md-mark {
-  color: var(--fm-muted);
+  color: var(--fm-accent);
 }
 
 .cm-md-heading {

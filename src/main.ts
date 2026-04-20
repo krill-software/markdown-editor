@@ -5,9 +5,12 @@ import { getCurrentWindow, LogicalSize, LogicalPosition } from "@tauri-apps/api/
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { confirm, open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 
+import { redo, selectAll, undo } from "@codemirror/commands";
+
 import { createEditor, type EditorHandle } from "./editor";
 import { exportHtml, exportPdf } from "./export";
 import { focusModeEnabled, toggleFocusMode } from "./focus-mode";
+import { installMenuBar, type MenuDef } from "./menu";
 import { createPreview, type PreviewHandle } from "./preview";
 
 interface PersistedState {
@@ -73,11 +76,9 @@ function resetFontSize() {
 function updateTitle() {
   const name = docState.path ? basename(docState.path) : "Untitled";
   const mark = isDirty() ? " •" : "";
-  const label = `${name}${mark}`;
-  document.title = `${label} — Markdown`;
-  getCurrentWindow().setTitle(`${label} — Markdown`).catch(() => {});
-  const el = document.getElementById("titlebar-title");
-  if (el) el.textContent = label;
+  const label = `${name}${mark} — Markdown`;
+  document.title = label;
+  getCurrentWindow().setTitle(label).catch(() => {});
 }
 
 function updateStatus(contents: string) {
@@ -105,11 +106,12 @@ async function openPath(path: string) {
       path,
     });
     editor.setDoc(res.contents);
+    const normalized = editor.getDoc();
     docState.path = res.path;
-    docState.savedHash = hash(res.contents);
+    docState.savedHash = hash(normalized);
     docState.currentHash = docState.savedHash;
     updateTitle();
-    updateStatus(res.contents);
+    updateStatus(normalized);
   } catch (e) {
     console.error("open failed:", e);
   }
@@ -160,11 +162,12 @@ async function saveAs(): Promise<boolean> {
 async function newFile() {
   if (!(await confirmDiscardIfDirty())) return;
   editor.setDoc("");
+  const normalized = editor.getDoc();
   docState.path = null;
-  docState.savedHash = hash("");
+  docState.savedHash = hash(normalized);
   docState.currentHash = docState.savedHash;
   updateTitle();
-  updateStatus("");
+  updateStatus(normalized);
 }
 
 async function confirmDiscardIfDirty(): Promise<boolean> {
@@ -185,9 +188,81 @@ function togglePreview() {
 }
 
 function toggleFocus() {
+  setFocus(!editor.view.state.field(focusModeEnabled));
+}
+
+function setFocus(enabled: boolean) {
   const view = editor.view;
-  const current = view.state.field(focusModeEnabled);
-  view.dispatch({ effects: toggleFocusMode.of(!current) });
+  if (view.state.field(focusModeEnabled) === enabled) return;
+  view.dispatch({ effects: toggleFocusMode.of(enabled) });
+}
+
+function installMarginClickToggle() {
+  const root = document.getElementById("editor-root");
+  if (!root) return;
+  root.addEventListener(
+    "mousedown",
+    (e) => {
+      const target = e.target as Element | null;
+      if (!target) return;
+      if (target.closest(".cm-content")) setFocus(true);
+      else if (target.closest(".cm-scroller")) setFocus(false);
+    },
+    { capture: true },
+  );
+}
+
+function buildMenus(): MenuDef[] {
+  const withFocus = (cmd: (view: any) => boolean) => {
+    const view = editor.view;
+    cmd(view);
+    view.focus();
+  };
+  const clipboard = (command: "cut" | "copy" | "paste") => {
+    editor.view.focus();
+    document.execCommand(command);
+  };
+  return [
+    {
+      label: "File",
+      items: [
+        { label: "New", shortcut: "Ctrl+N", action: () => void newFile() },
+        { label: "Open…", shortcut: "Ctrl+O", action: () => void openViaDialog() },
+        { sep: true },
+        { label: "Save", shortcut: "Ctrl+S", action: () => void save() },
+        { label: "Save As…", shortcut: "Ctrl+Shift+S", action: () => void saveAs() },
+        { sep: true },
+        { label: "Export to HTML…", shortcut: "Ctrl+Shift+H", action: () => void runExportHtml() },
+        { label: "Export to PDF…", shortcut: "Ctrl+Shift+P", action: () => void runExportPdf() },
+        { sep: true },
+        { label: "Quit", shortcut: "Ctrl+Q", action: () => void quit() },
+      ],
+    },
+    {
+      label: "Edit",
+      items: [
+        { label: "Undo", shortcut: "Ctrl+Z", action: () => withFocus(undo) },
+        { label: "Redo", shortcut: "Ctrl+Shift+Z", action: () => withFocus(redo) },
+        { sep: true },
+        { label: "Cut", shortcut: "Ctrl+X", action: () => clipboard("cut") },
+        { label: "Copy", shortcut: "Ctrl+C", action: () => clipboard("copy") },
+        { label: "Paste", shortcut: "Ctrl+V", action: () => clipboard("paste") },
+        { sep: true },
+        { label: "Select All", shortcut: "Ctrl+A", action: () => withFocus(selectAll) },
+      ],
+    },
+    {
+      label: "View",
+      items: [
+        { label: "Preview", shortcut: "Ctrl+E", action: togglePreview },
+        { label: "Focus Mode", shortcut: "Ctrl+Shift+F", action: toggleFocus },
+        { sep: true },
+        { label: "Increase Font Size", shortcut: "Ctrl+=", action: () => bumpFontSize(1) },
+        { label: "Decrease Font Size", shortcut: "Ctrl+-", action: () => bumpFontSize(-1) },
+        { label: "Reset Font Size", shortcut: "Ctrl+0", action: resetFontSize },
+      ],
+    },
+  ];
 }
 
 function installTitlebar() {
@@ -294,13 +369,13 @@ async function installWindowPersistence() {
   await w.onResized(record);
   await w.onMoved(record);
   await w.onCloseRequested(async (event) => {
-    if (isDirty()) {
-      const ok = await confirm("You have unsaved changes. Close anyway?", {
-        title: "Unsaved changes",
-        kind: "warning",
-      });
-      if (!ok) event.preventDefault();
-    }
+    if (!isDirty()) return;
+    event.preventDefault();
+    const ok = await confirm("You have unsaved changes. Close anyway?", {
+      title: "Unsaved changes",
+      kind: "warning",
+    });
+    if (ok) await w.destroy();
   });
 }
 
@@ -321,6 +396,9 @@ async function boot() {
   preview = createPreview(previewRoot, () => editor.view.focus());
 
   installTitlebar();
+  const menuContainer = document.getElementById("menu-bar");
+  if (menuContainer) installMenuBar(menuContainer, buildMenus());
+  installMarginClickToggle();
   installKeybindings();
   await installWindowPersistence();
 
