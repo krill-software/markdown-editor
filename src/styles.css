@@ -123,6 +123,74 @@ body {
   cursor: default;
 }
 
+#titlebar {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: stretch;
+  height: 34px;
+  background: var(--fm-bg);
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+#titlebar-drag {
+  flex: 1 1 auto;
+  display: flex;
+  align-items: center;
+  padding: 0 14px;
+  min-width: 0;
+  cursor: default;
+}
+
+#titlebar-title {
+  color: var(--fm-muted);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+#titlebar-controls {
+  flex: 0 0 auto;
+  display: flex;
+}
+
+#titlebar-controls button {
+  width: 40px;
+  height: 100%;
+  background: transparent;
+  border: 0;
+  padding: 0;
+  margin: 0;
+  color: var(--fm-muted);
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color 100ms ease, color 100ms ease;
+  font-family: inherit;
+}
+
+#titlebar-controls button:hover {
+  background: rgba(48, 52, 63, 0.06);
+  color: var(--fm-text);
+}
+
+#titlebar-close:hover {
+  background: var(--fm-accent);
+  color: #ffffff;
+}
+
+#titlebar-controls button:focus {
+  outline: none;
+}
+
+#titlebar-controls svg {
+  display: block;
+}
+
 #app {
   flex: 1 1 auto;
   min-height: 0;
@@ -502,6 +570,12 @@ body[data-mode="preview"] #editor-root {
 .cm-editor .cm-activeLine,
 .cm-editor .cm-activeLineGutter {
   background: transparent;
+}
+
+/* Paragraph focus mode: dim lines outside the cursor's paragraph */
+.cm-editor .cm-focus-dim {
+  opacity: 0.28;
+  transition: opacity 180ms ease;
 }
 
 /* Muted markdown syntax — applied by our decoration extension */

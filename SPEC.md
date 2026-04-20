@@ -11,7 +11,7 @@ A minimal, keyboard-driven markdown editor for Linux. Single-file oriented. Sour
 
 ## Roadmap beyond v1
 
-- **v2:** Focus mode (dim non-active paragraph/sentence, iA Writer-style). Committed for v2, not v1 — but the text-column architecture in v1 must leave room for it without a rewrite.
+- Focus mode was pulled forward into v1 (paragraph-scope; sentence-scope and per-file persistence are later refinements).
 
 ## UX principles (iA Writer-inspired)
 
@@ -90,6 +90,7 @@ Preview mode uses **Inter** (bundled, SIL OFL) for headings and **Charter** (bun
 | Action | Key |
 |---|---|
 | Toggle edit/preview | `Ctrl+E` |
+| Toggle focus mode | `Ctrl+Shift+F` |
 | Increase/decrease/reset font size | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` |
 | Save | `Ctrl+S` |
 | Save As | `Ctrl+Shift+S` |
@@ -134,7 +135,7 @@ Standard editor keys (undo/redo/find/replace) come from CodeMirror defaults.
 
 ## Out of scope / open questions
 
-- Focus mode — committed to v2 (see **Roadmap**), not v1.
+- Focus mode ships in v1 (paragraph-scope only; sentence-scope and per-file persistence are later refinements).
 - Spellcheck — not in v1.
 - Image paste / drag-drop — not in v1 (would need a sidecar assets strategy).
 - Whether KaTeX fonts ship inline in exported HTML or reference a CDN — decide during export impl.

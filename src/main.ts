@@ -7,6 +7,7 @@ import { confirm, open as openDialog, save as saveDialog } from "@tauri-apps/plu
 
 import { createEditor, type EditorHandle } from "./editor";
 import { exportHtml, exportPdf } from "./export";
+import { focusModeEnabled, toggleFocusMode } from "./focus-mode";
 import { createPreview, type PreviewHandle } from "./preview";
 
 interface PersistedState {
@@ -72,9 +73,11 @@ function resetFontSize() {
 function updateTitle() {
   const name = docState.path ? basename(docState.path) : "Untitled";
   const mark = isDirty() ? " •" : "";
-  const title = `${name}${mark} — Markdown`;
-  document.title = title;
-  getCurrentWindow().setTitle(title).catch(() => {});
+  const label = `${name}${mark}`;
+  document.title = `${label} — Markdown`;
+  getCurrentWindow().setTitle(`${label} — Markdown`).catch(() => {});
+  const el = document.getElementById("titlebar-title");
+  if (el) el.textContent = label;
 }
 
 function updateStatus(contents: string) {
@@ -181,6 +184,33 @@ function togglePreview() {
   updateStatus(editor.getDoc());
 }
 
+function toggleFocus() {
+  const view = editor.view;
+  const current = view.state.field(focusModeEnabled);
+  view.dispatch({ effects: toggleFocusMode.of(!current) });
+}
+
+function installTitlebar() {
+  const w = getCurrentWindow();
+  const bind = (id: string, handler: () => void | Promise<void>) => {
+    const el = document.getElementById(id);
+    if (el) el.addEventListener("click", (e) => { e.preventDefault(); void handler(); });
+  };
+  bind("titlebar-min", () => w.minimize());
+  bind("titlebar-max", async () => {
+    if (await w.isMaximized()) await w.unmaximize();
+    else await w.maximize();
+  });
+  bind("titlebar-close", () => w.close());
+  const drag = document.getElementById("titlebar-drag");
+  if (drag) {
+    drag.addEventListener("dblclick", async () => {
+      if (await w.isMaximized()) await w.unmaximize();
+      else await w.maximize();
+    });
+  }
+}
+
 async function runExportHtml() {
   try {
     await exportHtml(editor.getDoc(), docState.path, previewRoot, preview);
@@ -213,6 +243,7 @@ function installKeybindings() {
       else if (key === "n" && !shift) void newFile();
       else if (key === "q" && !shift) void quit();
       else if (key === "e" && !shift) togglePreview();
+      else if (key === "f" && shift) toggleFocus();
       else if (key === "h" && shift) void runExportHtml();
       else if (key === "p" && shift) void runExportPdf();
       else if (key === "=" || key === "+") bumpFontSize(1);
@@ -289,6 +320,7 @@ async function boot() {
   editor = createEditor(editorRoot, "", onDocChange);
   preview = createPreview(previewRoot, () => editor.view.focus());
 
+  installTitlebar();
   installKeybindings();
   await installWindowPersistence();
 

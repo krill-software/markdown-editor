@@ -17,10 +17,9 @@
         "height": 720,
         "minWidth": 480,
         "minHeight": 360,
-        "decorations": true,
+        "decorations": false,
         "resizable": true,
         "center": true,
-        "titleBarStyle": "Visible",
         "backgroundColor": "#FAFAFF"
       }
     ],

@@ -3,6 +3,7 @@ import { markdown, markdownLanguage } from "@codemirror/lang-markdown";
 import { EditorState } from "@codemirror/state";
 import { EditorView, drawSelection, keymap } from "@codemirror/view";
 
+import { focusMode, focusModeEnabled } from "./focus-mode";
 import { mutedMarkdown } from "./muted-markdown";
 
 export interface EditorHandle {
@@ -25,6 +26,8 @@ export function createEditor(
       EditorState.tabSize.of(2),
       markdown({ base: markdownLanguage, codeLanguages: [] }),
       mutedMarkdown,
+      focusModeEnabled,
+      focusMode,
       keymap.of([...defaultKeymap, ...historyKeymap]),
       EditorView.updateListener.of((u) => {
         if (u.docChanged) onChange(u.state.doc.toString());
