@@ -6,6 +6,7 @@ import { getMatches } from "@tauri-apps/plugin-cli";
 import { confirm, open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
 
 import { createEditor, type EditorHandle } from "./editor";
+import { exportHtml, exportPdf } from "./export";
 import { createPreview, type PreviewHandle } from "./preview";
 
 interface PersistedState {
@@ -32,6 +33,7 @@ const docState: DocState = {
 
 let editor: EditorHandle;
 let preview: PreviewHandle;
+let previewRoot: HTMLElement;
 let saveStateTimer: number | undefined;
 
 function hash(s: string): number {
@@ -179,6 +181,22 @@ function togglePreview() {
   updateStatus(editor.getDoc());
 }
 
+async function runExportHtml() {
+  try {
+    await exportHtml(editor.getDoc(), docState.path, previewRoot, preview);
+  } catch (e) {
+    console.error("HTML export failed:", e);
+  }
+}
+
+async function runExportPdf() {
+  try {
+    await exportPdf(editor.getDoc(), preview);
+  } catch (e) {
+    console.error("PDF export failed:", e);
+  }
+}
+
 function installKeybindings() {
   const mac = navigator.platform.toLowerCase().includes("mac");
   window.addEventListener(
@@ -195,6 +213,8 @@ function installKeybindings() {
       else if (key === "n" && !shift) void newFile();
       else if (key === "q" && !shift) void quit();
       else if (key === "e" && !shift) togglePreview();
+      else if (key === "h" && shift) void runExportHtml();
+      else if (key === "p" && shift) void runExportPdf();
       else if (key === "=" || key === "+") bumpFontSize(1);
       else if (key === "-") bumpFontSize(-1);
       else if (key === "0") resetFontSize();
@@ -264,7 +284,7 @@ async function boot() {
   applyFontSize(persisted.font_size ?? FONT_DEFAULT);
 
   const editorRoot = document.getElementById("editor-root")!;
-  const previewRoot = document.getElementById("preview-root")!;
+  previewRoot = document.getElementById("preview-root")!;
 
   editor = createEditor(editorRoot, "", onDocChange);
   preview = createPreview(previewRoot, () => editor.view.focus());
