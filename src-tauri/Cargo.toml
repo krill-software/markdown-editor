@@ -1,6 +1,6 @@
 [package]
 name = "fippli-markdown"
-version = "0.1.0"
+version = "0.1.1"
 description = "A beautiful markdown editor for Linux"
 authors = ["Filip"]
 edition = "2021"
