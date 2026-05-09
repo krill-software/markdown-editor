@@ -45,6 +45,7 @@ let preview: PreviewHandle;
 let previewRoot: HTMLElement;
 let syntaxGuide: SyntaxGuideHandle;
 let saveStateTimer: number | undefined;
+let titleEl: HTMLElement | null = null;
 
 function hash(s: string): number {
   let h = 2166136261 >>> 0;
@@ -82,6 +83,7 @@ function resetFontSize() {
 function updateTitle() {
   const name = docState.path ? basename(docState.path) : UNTITLED_NAME;
   const mark = isDirty() ? " •" : "";
+  if (titleEl) titleEl.textContent = name;
   const label = `${name}${mark} — Markdown Editor`;
   document.title = label;
   getCurrentWindow().setTitle(label).catch(() => {});
@@ -291,6 +293,7 @@ function initChrome() {
     ],
     showStatusLine: true,
   });
+  titleEl = chrome.title;
 
   for (const id of ["editor-root", "preview-root", "syntax-guide-root"]) {
     const sec = document.createElement("section");

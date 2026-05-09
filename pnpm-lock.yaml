@@ -24,8 +24,8 @@ importers:
         specifier: ^6.34.1
         version: 6.41.1
       '@krill-software/desktop-ui':
-        specifier: github:krill-software/desktop-ui#v0.3.0
-        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/5a456ca41fc264e8781cd2e7721c935002fe8de3(@tauri-apps/api@2.10.1)
+        specifier: github:krill-software/desktop-ui#v0.4.0
+        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/ffa7d922233a4ba0044ce99928775cf1d5b599c3(@tauri-apps/api@2.10.1)
       '@lezer/common':
         specifier: ^1.2.1
         version: 1.5.2
@@ -270,9 +270,9 @@ packages:
   '@iconify/utils@3.1.0':
     resolution: {integrity: sha512-Zlzem1ZXhI1iHeeERabLNzBHdOa4VhQbqAcOQaMKuTuyZCpwKbC2R4Dd0Zo3g9EAc+Y4fiarO8HIHRAth7+skw==}
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/5a456ca41fc264e8781cd2e7721c935002fe8de3':
-    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/5a456ca41fc264e8781cd2e7721c935002fe8de3}
-    version: 0.3.0
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/ffa7d922233a4ba0044ce99928775cf1d5b599c3':
+    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/ffa7d922233a4ba0044ce99928775cf1d5b599c3}
+    version: 0.4.0
     peerDependencies:
       '@tauri-apps/api': ^2.0.0
 
@@ -1240,7 +1240,7 @@ snapshots:
       '@iconify/types': 2.0.0
       mlly: 1.8.2
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/5a456ca41fc264e8781cd2e7721c935002fe8de3(@tauri-apps/api@2.10.1)':
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/ffa7d922233a4ba0044ce99928775cf1d5b599c3(@tauri-apps/api@2.10.1)':
     dependencies:
       '@tauri-apps/api': 2.10.1
 
