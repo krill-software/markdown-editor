@@ -70,7 +70,7 @@ const PREVIEW_CSS = `
 :root {
   --fm-mono: "Hasklig", "Source Code Pro", "JetBrains Mono", ui-monospace, monospace;
   --fm-serif: "Charter", Georgia, "Liberation Serif", serif;
-  --fm-heading: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --fm-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --fm-bg: #FAFAFF;
   --fm-text: #30343F;
   --fm-muted: #878472;
@@ -100,7 +100,7 @@ main {
 }
 
 main :is(h1, h2, h3, h4, h5, h6) {
-  font-family: var(--fm-heading);
+  font-family: var(--fm-sans);
   font-weight: 700;
   line-height: 1.2;
   letter-spacing: -0.015em;

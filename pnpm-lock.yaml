@@ -23,6 +23,9 @@ importers:
       '@codemirror/view':
         specifier: ^6.34.1
         version: 6.41.1
+      '@krill-software/desktop-ui':
+        specifier: github:krill-software/desktop-ui#v0.1.1
+        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/c30a9d28afa102fe08412d9cf820ea67e7037c57(@tauri-apps/api@2.10.1)
       '@lezer/common':
         specifier: ^1.2.1
         version: 1.5.2
@@ -266,6 +269,12 @@ packages:
 
   '@iconify/utils@3.1.0':
     resolution: {integrity: sha512-Zlzem1ZXhI1iHeeERabLNzBHdOa4VhQbqAcOQaMKuTuyZCpwKbC2R4Dd0Zo3g9EAc+Y4fiarO8HIHRAth7+skw==}
+
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/c30a9d28afa102fe08412d9cf820ea67e7037c57':
+    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/c30a9d28afa102fe08412d9cf820ea67e7037c57}
+    version: 0.1.0
+    peerDependencies:
+      '@tauri-apps/api': ^2.0.0
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -1230,6 +1239,10 @@ snapshots:
       '@antfu/install-pkg': 1.1.0
       '@iconify/types': 2.0.0
       mlly: 1.8.2
+
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/c30a9d28afa102fe08412d9cf820ea67e7037c57(@tauri-apps/api@2.10.1)':
+    dependencies:
+      '@tauri-apps/api': 2.10.1
 
   '@lezer/common@1.5.2': {}
 

@@ -36,6 +36,7 @@ These are binding, not aspirational. If a feature would compromise one of these,
 
 - **Shell:** Tauri 2 (Rust backend + system webview).
 - **Frontend:** TypeScript + Vite. Editor component: CodeMirror 6.
+- **Chrome + palette:** [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) (git dep). Provides the locked-palette CSS bundle, custom titlebar, menu bar, and status line via `mountChrome()`. App-specific style (mono body font, custom status-line backdrop) layers on top.
 - **Markdown → HTML:** `markdown-it` (CommonMark + GFM plugins) in the frontend.
 - **Syntax highlighting:** Shiki or `highlight.js` inside preview.
 - **Math:** KaTeX (auto-render on `$...$` and `$$...$$`).
@@ -83,7 +84,7 @@ Preview mode uses **Inter** (bundled, SIL OFL) for headings and **Charter** (bun
 
 - Single window per file. Opening a second file launches a second process/window.
 - Title bar shows `<filename> [• if dirty] — Markdown`.
-- Remember last window size/position in `$XDG_STATE_HOME/fippli-markdown/window.json`.
+- Remember last window size/position in `$XDG_STATE_HOME/krill-markdown-editor/window.json`.
 
 ### Keybindings (v1)
 
@@ -105,7 +106,7 @@ Standard editor keys (undo/redo/find/replace) come from CodeMirror defaults.
 ## File handling
 
 - **Formats:** `.md`, `.markdown`. UTF-8 only.
-- **Open from CLI:** `fippli-markdown path/to/file.md` opens directly in edit mode.
+- **Open from CLI:** `krill-markdown-editor path/to/file.md` opens directly in edit mode.
 - **Open with no arg:** empty untitled buffer; Save prompts for a path.
 - **Dirty tracking:** compare current buffer hash to on-disk hash. Prompt on close if dirty.
 - **External changes:** watch the open file; if it changes on disk and buffer is clean, reload. If dirty, show a non-blocking banner offering Reload / Keep Mine.
@@ -128,9 +129,9 @@ Standard editor keys (undo/redo/find/replace) come from CodeMirror defaults.
 ## Linux integration
 
 - Ship a `.desktop` file with `MimeType=text/markdown;`.
-- Binary name: `fippli-markdown`.
-- Config: `$XDG_CONFIG_HOME/fippli-markdown/config.toml` (empty/optional in v1).
-- State: `$XDG_STATE_HOME/fippli-markdown/`.
+- Binary name: `krill-markdown-editor`.
+- Config: `$XDG_CONFIG_HOME/krill-markdown-editor/config.toml` (empty/optional in v1).
+- State: `$XDG_STATE_HOME/krill-markdown-editor/`.
 - Distribution: AppImage as primary artifact for v1. `.deb` and Flatpak deferred.
 
 ## Out of scope / open questions

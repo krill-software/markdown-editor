@@ -1,8 +1,8 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Markdown",
+  "productName": "Markdown Editor",
   "version": "0.1.1",
-  "identifier": "com.fippli.markdown",
+  "identifier": "software.krill.markdown-editor",
   "build": {
     "beforeDevCommand": "pnpm dev",
     "devUrl": "http://localhost:1420",
@@ -12,7 +12,7 @@
   "app": {
     "windows": [
       {
-        "title": "Markdown",
+        "title": "Markdown Editor",
         "width": 900,
         "height": 720,
         "minWidth": 480,

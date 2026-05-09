@@ -1,4 +1,8 @@
+import "@krill-software/desktop-ui/styles";
+import "./styles.css";
 import "katex/dist/katex.min.css";
+
+import { mountChrome, type MenuDef } from "@krill-software/desktop-ui";
 
 import { invoke } from "@tauri-apps/api/core";
 import { getCurrentWindow, LogicalSize, LogicalPosition } from "@tauri-apps/api/window";
@@ -10,7 +14,6 @@ import { redo, selectAll, undo } from "@codemirror/commands";
 import { createEditor, type EditorHandle } from "./editor";
 import { exportHtml, exportPdf } from "./export";
 import { focusModeEnabled, toggleFocusMode } from "./focus-mode";
-import { installMenuBar, type MenuDef } from "./menu";
 import { createPreview, type PreviewHandle } from "./preview";
 import { createSyntaxGuide, type SyntaxGuideHandle } from "./syntax-guide";
 
@@ -79,7 +82,7 @@ function resetFontSize() {
 function updateTitle() {
   const name = docState.path ? basename(docState.path) : UNTITLED_NAME;
   const mark = isDirty() ? " •" : "";
-  const label = `${name}${mark} — Markdown`;
+  const label = `${name}${mark} — Markdown Editor`;
   document.title = label;
   getCurrentWindow().setTitle(label).catch(() => {});
 }
@@ -285,24 +288,33 @@ function buildMenus(): MenuDef[] {
   ];
 }
 
-function installTitlebar() {
-  const w = getCurrentWindow();
-  const bind = (id: string, handler: () => void | Promise<void>) => {
-    const el = document.getElementById(id);
-    if (el) el.addEventListener("click", (e) => { e.preventDefault(); void handler(); });
-  };
-  bind("titlebar-min", () => w.minimize());
-  bind("titlebar-max", async () => {
-    if (await w.isMaximized()) await w.unmaximize();
-    else await w.maximize();
+/** Build the body chrome via desktop-ui's mountChrome, then graft the
+ *  app's three working-view roots (editor / preview / syntax-guide) and
+ *  the four status-line spans into the structure it returns. */
+function initChrome() {
+  const chrome = mountChrome({
+    productName: "Markdown Editor",
+    menus: buildMenus(),
+    showStatusLine: true,
   });
-  bind("titlebar-close", () => w.close());
-  const drag = document.getElementById("titlebar-drag");
-  if (drag) {
-    drag.addEventListener("dblclick", async () => {
-      if (await w.isMaximized()) await w.unmaximize();
-      else await w.maximize();
-    });
+  chrome.viewport.id = "app"; // existing styles target #app
+
+  for (const id of ["editor-root", "preview-root", "syntax-guide-root"]) {
+    const sec = document.createElement("section");
+    sec.id = id;
+    if (id !== "editor-root") {
+      sec.classList.add("md-pane");
+      sec.setAttribute("aria-hidden", "true");
+    }
+    chrome.viewport.appendChild(sec);
+  }
+
+  const sl = chrome.statusLine!;
+  for (const id of ["status-name", "status-dirty", "status-mode", "status-words"]) {
+    const span = document.createElement("span");
+    span.id = id;
+    if (id === "status-dirty") span.setAttribute("aria-hidden", "true");
+    sl.appendChild(span);
   }
 }
 
@@ -416,6 +428,8 @@ async function boot() {
 
   applyFontSize(persisted.font_size ?? FONT_DEFAULT);
 
+  initChrome();
+
   const editorRoot = document.getElementById("editor-root")!;
   previewRoot = document.getElementById("preview-root")!;
 
@@ -427,9 +441,6 @@ async function boot() {
     updateStatus(editor.getDoc());
   });
 
-  installTitlebar();
-  const menuContainer = document.getElementById("menu-bar");
-  if (menuContainer) installMenuBar(menuContainer, buildMenus());
   installMarginClickToggle();
   installKeybindings();
   await installWindowPersistence();
