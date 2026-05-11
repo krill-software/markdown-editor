@@ -90,11 +90,8 @@ function updateTitle() {
 }
 
 function updateStatus(contents: string) {
-  const name = docState.path ? basename(docState.path) : UNTITLED_NAME;
-  const nameEl = document.getElementById("status-name")!;
   const wordsEl = document.getElementById("status-words")!;
   const modeEl = document.getElementById("status-mode")!;
-  nameEl.textContent = name;
   document.body.dataset.dirty = String(isDirty());
   const words = contents.trim() ? contents.trim().split(/\s+/).length : 0;
   wordsEl.textContent = `${words} ${words === 1 ? "word" : "words"}`;
@@ -306,13 +303,10 @@ function initChrome() {
   }
 
   // Status line:
-  //   LEFT (info)  → filename
   //   RIGHT (state) → mode badge + word count
-  // Dirty rides body[data-dirty="true"].
-  const nameSpan = document.createElement("span");
-  nameSpan.id = "status-name";
-  chrome.statusInfo!.appendChild(nameSpan);
-
+  // Filename rides the titlebar; dirty rides body[data-dirty="true"].
+  // The info half stays empty — markdown documents don't have natural
+  // file-identity metrics to surface.
   const modeSpan = document.createElement("span");
   modeSpan.id = "status-mode";
   chrome.statusState!.appendChild(modeSpan);
