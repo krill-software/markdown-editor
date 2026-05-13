@@ -289,6 +289,7 @@ function initChrome() {
       },
     ],
     showStatusLine: true,
+    updater: true,
   });
   titleEl = chrome.title;
 

@@ -24,8 +24,8 @@ importers:
         specifier: ^6.34.1
         version: 6.41.1
       '@krill-software/desktop-ui':
-        specifier: github:krill-software/desktop-ui#v0.4.3
-        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/4d3037967a05a354572fecab6d681b88e729c8c2(@tauri-apps/api@2.10.1)
+        specifier: github:krill-software/desktop-ui#v0.5.0
+        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/ca43386449cf484e70bb45a83e2f95e36d199f72(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)
       '@lezer/common':
         specifier: ^1.2.1
         version: 1.5.2
@@ -41,6 +41,12 @@ importers:
       '@tauri-apps/plugin-dialog':
         specifier: ^2.0.1
         version: 2.7.0
+      '@tauri-apps/plugin-process':
+        specifier: ^2.0.0
+        version: 2.3.1
+      '@tauri-apps/plugin-updater':
+        specifier: ^2.0.0
+        version: 2.10.1
       highlight.js:
         specifier: ^11.10.0
         version: 11.11.1
@@ -270,11 +276,19 @@ packages:
   '@iconify/utils@3.1.0':
     resolution: {integrity: sha512-Zlzem1ZXhI1iHeeERabLNzBHdOa4VhQbqAcOQaMKuTuyZCpwKbC2R4Dd0Zo3g9EAc+Y4fiarO8HIHRAth7+skw==}
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/4d3037967a05a354572fecab6d681b88e729c8c2':
-    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/4d3037967a05a354572fecab6d681b88e729c8c2}
-    version: 0.4.3
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/ca43386449cf484e70bb45a83e2f95e36d199f72':
+    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/ca43386449cf484e70bb45a83e2f95e36d199f72}
+    version: 0.5.0
     peerDependencies:
       '@tauri-apps/api': ^2.0.0
+      '@tauri-apps/plugin-dialog': ^2.0.0
+      '@tauri-apps/plugin-process': ^2.0.0
+      '@tauri-apps/plugin-updater': ^2.0.0
+    peerDependenciesMeta:
+      '@tauri-apps/plugin-process':
+        optional: true
+      '@tauri-apps/plugin-updater':
+        optional: true
 
   '@lezer/common@1.5.2':
     resolution: {integrity: sha512-sxQE460fPZyU3sdc8lafxiPwJHBzZRy/udNFynGQky1SePYBdhkBl1kOagA9uT3pxR8K09bOrmTUqA9wb/PjSQ==}
@@ -525,6 +539,12 @@ packages:
 
   '@tauri-apps/plugin-dialog@2.7.0':
     resolution: {integrity: sha512-4nS/hfGMGCXiAS3LtVjH9AgsSAPJeG/7R+q8agTFqytjnMa4Zq95Bq8WzVDkckpanX+yyRHXnRtrKXkANKDHvw==}
+
+  '@tauri-apps/plugin-process@2.3.1':
+    resolution: {integrity: sha512-nCa4fGVaDL/B9ai03VyPOjfAHRHSBz5v6F/ObsB73r/dA3MHHhZtldaDMIc0V/pnUw9ehzr2iEG+XkSEyC0JJA==}
+
+  '@tauri-apps/plugin-updater@2.10.1':
+    resolution: {integrity: sha512-NFYMg+tWOZPJdzE/PpFj2qfqwAWwNS3kXrb1tm1gnBJ9mYzZ4WDRrwy8udzWoAnfGCHLuePNLY1WVCNHnh3eRA==}
 
   '@types/d3-array@3.2.2':
     resolution: {integrity: sha512-hOLWVbm7uRza0BYXpIIW5pxfrKe0W+D5lrFiAEYR+pb6w3N2SwSMaJbXdUfSEv+dT4MfHBLtn5js0LAWaO6otw==}
@@ -1240,9 +1260,13 @@ snapshots:
       '@iconify/types': 2.0.0
       mlly: 1.8.2
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/4d3037967a05a354572fecab6d681b88e729c8c2(@tauri-apps/api@2.10.1)':
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/ca43386449cf484e70bb45a83e2f95e36d199f72(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)':
     dependencies:
       '@tauri-apps/api': 2.10.1
+      '@tauri-apps/plugin-dialog': 2.7.0
+    optionalDependencies:
+      '@tauri-apps/plugin-process': 2.3.1
+      '@tauri-apps/plugin-updater': 2.10.1
 
   '@lezer/common@1.5.2': {}
 
@@ -1412,6 +1436,14 @@ snapshots:
       '@tauri-apps/api': 2.10.1
 
   '@tauri-apps/plugin-dialog@2.7.0':
+    dependencies:
+      '@tauri-apps/api': 2.10.1
+
+  '@tauri-apps/plugin-process@2.3.1':
+    dependencies:
+      '@tauri-apps/api': 2.10.1
+
+  '@tauri-apps/plugin-updater@2.10.1':
     dependencies:
       '@tauri-apps/api': 2.10.1
 
