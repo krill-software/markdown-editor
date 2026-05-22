@@ -354,7 +354,12 @@ body[data-mode="syntax-guide"] #preview-root {
   padding: 0.05em 0.35em;
 }
 
-/* highlight.js theme — palette with two extra code-block accents */
+/* highlight.js theme — domain-essential syntax colors (STYLE.md palette
+ * exception). Light-mode values below; the dark-mode @media block lifts
+ * every hue so code stays legible on the inverted background — without
+ * a dark variant --hl-function / --hl-operator (Space Cadet) would be
+ * near-invisible on dark. --hl-string / --hl-comment ride --fm-accent /
+ * --fm-muted, which the palette already inverts. */
 .md-pane pre {
   --hl-keyword: #6B4A7A;
   --hl-type: #4A7C9A;
@@ -363,6 +368,16 @@ body[data-mode="syntax-guide"] #preview-root {
   --hl-function: #30343F;
   --hl-comment: var(--fm-muted);
   --hl-operator: #30343F;
+}
+
+@media (prefers-color-scheme: dark) {
+  .md-pane pre {
+    --hl-keyword: #C8A6D6;   /* lifted lavender */
+    --hl-type: #8FB9D6;      /* lifted blue */
+    --hl-number: #D6AE78;    /* lifted amber */
+    --hl-function: #E5E5EC;  /* near-white — was Space Cadet */
+    --hl-operator: #E5E5EC;  /* near-white — was Space Cadet */
+  }
 }
 
 .md-pane .hljs-comment,
