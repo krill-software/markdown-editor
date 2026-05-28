@@ -12,9 +12,8 @@ import { confirm, open as openDialog, save as saveDialog } from "@tauri-apps/plu
 import { redo, selectAll, undo } from "@codemirror/commands";
 
 import { createEditor, type EditorHandle } from "./editor";
-import { exportHtml, exportPdf } from "./export";
+import { exportHtml } from "./export";
 import { focusModeEnabled, toggleFocusMode } from "./focus-mode";
-import { createPreview, type PreviewHandle } from "./preview";
 import { createSyntaxGuide, type SyntaxGuideHandle } from "./syntax-guide";
 
 interface PersistedState {
@@ -41,8 +40,6 @@ const docState: DocState = {
 };
 
 let editor: EditorHandle;
-let preview: PreviewHandle;
-let previewRoot: HTMLElement;
 let syntaxGuide: SyntaxGuideHandle;
 let saveStateTimer: number | undefined;
 let titleEl: HTMLElement | null = null;
@@ -95,11 +92,7 @@ function updateStatus(contents: string) {
   document.body.dataset.dirty = String(isDirty());
   const words = contents.trim() ? contents.trim().split(/\s+/).length : 0;
   wordsEl.textContent = `${words} ${words === 1 ? "word" : "words"}`;
-  modeEl.textContent = syntaxGuide?.isOpen()
-    ? "help"
-    : preview?.isOpen()
-      ? "preview"
-      : "";
+  modeEl.textContent = syntaxGuide?.isOpen() ? "help" : "";
 }
 
 function onDocChange(contents: string) {
@@ -190,16 +183,21 @@ async function quit() {
   await getCurrentWindow().close();
 }
 
-function togglePreview() {
-  if (syntaxGuide?.isOpen()) syntaxGuide.hide();
-  preview.toggle(editor.getDoc());
+function toggleSyntaxGuide() {
+  syntaxGuide.toggle();
   updateStatus(editor.getDoc());
 }
 
-function toggleSyntaxGuide() {
-  if (preview?.isOpen()) preview.hide();
-  syntaxGuide.toggle();
-  updateStatus(editor.getDoc());
+async function openInViewer() {
+  if (!docState.path) {
+    // Need to save first — the viewer reads from disk, not the editor's buffer.
+    if (!(await save())) return;
+  }
+  try {
+    await invoke("open_in_viewer", { path: docState.path });
+  } catch (e) {
+    console.warn("open_in_viewer failed (is krill-markdown-viewer installed?):", e);
+  }
 }
 
 function toggleFocus() {
@@ -264,13 +262,12 @@ function initChrome() {
         group: "file",
         items: [
           { label: "Export to HTML…", shortcut: "Ctrl+Shift+H", action: () => void runExportHtml() },
-          { label: "Export to PDF…",  shortcut: "Ctrl+Shift+P", action: () => void runExportPdf() },
         ],
       },
       {
         group: "view",
         items: [
-          { label: "Preview",        shortcut: "Ctrl+E",       action: togglePreview },
+          { label: "Open in Viewer", shortcut: "Ctrl+Shift+V", action: () => void openInViewer() },
           { label: "Focus mode",     shortcut: "Ctrl+Shift+F", action: toggleFocus },
           { sep: true },
           // App-specific use of the Ctrl+= / Ctrl+- / Ctrl+0 shortcuts:
@@ -293,7 +290,7 @@ function initChrome() {
   });
   titleEl = chrome.title;
 
-  for (const id of ["editor-root", "preview-root", "syntax-guide-root"]) {
+  for (const id of ["editor-root", "syntax-guide-root"]) {
     const sec = document.createElement("section");
     sec.id = id;
     if (id !== "editor-root") {
@@ -319,17 +316,9 @@ function initChrome() {
 
 async function runExportHtml() {
   try {
-    await exportHtml(editor.getDoc(), docState.path, previewRoot, preview);
+    await exportHtml(editor.getDoc(), docState.path);
   } catch (e) {
     console.error("HTML export failed:", e);
-  }
-}
-
-async function runExportPdf() {
-  try {
-    await exportPdf(editor.getDoc(), preview);
-  } catch (e) {
-    console.error("PDF export failed:", e);
   }
 }
 
@@ -404,10 +393,7 @@ async function boot() {
   initChrome();
 
   const editorRoot = document.getElementById("editor-root")!;
-  previewRoot = document.getElementById("preview-root")!;
-
   editor = createEditor(editorRoot, "", onDocChange);
-  preview = createPreview(previewRoot, () => editor.view.focus());
   const syntaxGuideRoot = document.getElementById("syntax-guide-root")!;
   syntaxGuide = createSyntaxGuide(syntaxGuideRoot, () => {
     editor.view.focus();

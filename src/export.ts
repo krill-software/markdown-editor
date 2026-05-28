@@ -13,7 +13,7 @@ import interBold from "/src/assets/fonts/Inter-Bold.woff2?url";
 import interReg from "/src/assets/fonts/Inter-Regular.woff2?url";
 import interSB from "/src/assets/fonts/Inter-SemiBold.woff2?url";
 
-import type { PreviewHandle } from "./preview";
+import { renderMarkdown, renderMermaidBlocks } from "./preview";
 
 interface FontSpec {
   family: string;
@@ -278,46 +278,51 @@ ${body}
 `;
 }
 
-async function ensurePreviewReady(
-  docSource: string,
-  preview: PreviewHandle,
-): Promise<void> {
-  if (!preview.isOpen()) {
-    preview.show(docSource);
-  } else {
-    preview.show(docSource);
-  }
-  await new Promise((r) => setTimeout(r, 450));
+/// Render the document into a hidden off-screen div, run any Mermaid
+/// blocks to SVG, and return its innerHTML. Caller owns disposal —
+/// always wrap in try/finally to remove the temp node.
+async function renderToOffscreen(docSource: string): Promise<{
+  node: HTMLElement;
+  html: string;
+}> {
+  const node = document.createElement("div");
+  node.id = "export-render-temp";
+  node.style.position = "fixed";
+  node.style.left = "-99999px";
+  node.style.top = "0";
+  node.style.width = "768px"; // give Mermaid a real layout width to lay out against
+  node.innerHTML = renderMarkdown(docSource);
+  document.body.append(node);
+  await renderMermaidBlocks(node);
+  return { node, html: node.innerHTML };
 }
 
 export async function exportHtml(
   docSource: string,
   currentPath: string | null,
-  previewRoot: HTMLElement,
-  preview: PreviewHandle,
 ): Promise<void> {
-  await ensurePreviewReady(docSource, preview);
+  const { node, html } = await renderToOffscreen(docSource);
+  try {
+    const fontCss = await buildFontFaceCss();
+    const css = `${fontCss}\n\n${PREVIEW_CSS}`;
+    const defaultName =
+      stripExt(basename(currentPath ?? "untitled.md")) + ".html";
+    const title = deriveTitle(html, stripExt(defaultName));
+    const doc = buildHtmlDocument(title, html, css);
 
-  const body = previewRoot.innerHTML;
-  const fontCss = await buildFontFaceCss();
-  const css = `${fontCss}\n\n${PREVIEW_CSS}`;
-  const defaultName = stripExt(basename(currentPath ?? "untitled.md")) + ".html";
-  const title = deriveTitle(body, stripExt(defaultName));
-  const doc = buildHtmlDocument(title, body, css);
+    const target = await saveDialog({
+      filters: [{ name: "HTML", extensions: ["html", "htm"] }],
+      defaultPath: defaultName,
+    });
+    if (!target) return;
 
-  const target = await saveDialog({
-    filters: [{ name: "HTML", extensions: ["html", "htm"] }],
-    defaultPath: defaultName,
-  });
-  if (!target) return;
-
-  await invoke("write_file", { path: target, contents: doc });
+    await invoke("write_file", { path: target, contents: doc });
+  } finally {
+    node.remove();
+  }
 }
 
-export async function exportPdf(
-  docSource: string,
-  preview: PreviewHandle,
-): Promise<void> {
-  await ensurePreviewReady(docSource, preview);
-  window.print();
-}
+/// PDF export now goes via the standalone markdown-viewer, since
+/// rendering + exporting belongs in the viewer's surface (planned
+/// feature). The editor's job is authoring; it doesn't need its own
+/// PDF pipeline. exportPdf removed.

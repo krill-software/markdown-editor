@@ -104,39 +104,8 @@ export function renderMarkdown(src: string): string {
   return fmHtml + bodyHtml;
 }
 
-export interface PreviewHandle {
-  show(src: string): void;
-  hide(): void;
-  toggle(src: string): void;
-  isOpen(): boolean;
-}
-
-export function createPreview(
-  root: HTMLElement,
-  onHide: () => void,
-): PreviewHandle {
-  let open = false;
-
-  const show = (src: string) => {
-    root.innerHTML = renderMarkdown(src);
-    root.scrollTop = 0;
-    document.body.dataset.mode = "preview";
-    root.setAttribute("aria-hidden", "false");
-    open = true;
-    void renderMermaidBlocks(root);
-  };
-
-  const hide = () => {
-    document.body.dataset.mode = "edit";
-    root.setAttribute("aria-hidden", "true");
-    open = false;
-    onHide();
-  };
-
-  const toggle = (src: string) => {
-    if (open) hide();
-    else show(src);
-  };
-
-  return { show, hide, toggle, isOpen: () => open };
-}
+// The in-app preview surface (createPreview / PreviewHandle / show /
+// hide / toggle) used to live here. It was removed when the standalone
+// `markdown-viewer` app took over rendering — the editor is now a pure
+// authoring surface. renderMarkdown + renderMermaidBlocks above are
+// kept because the syntax-guide and HTML export still need them.

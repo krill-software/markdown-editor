@@ -56,6 +56,18 @@ fn dev_test_file() -> Option<String> {
     kdev::test_file(env!("CARGO_MANIFEST_DIR"), &["test.md"])
 }
 
+/// Shell out to krill-markdown-viewer so the user can flip from
+/// authoring to a calmer reading surface. Detached so quitting the
+/// editor doesn't also kill the viewer.
+#[tauri::command]
+fn open_in_viewer(path: String) -> Result<(), String> {
+    std::process::Command::new("krill-markdown-viewer")
+        .arg(&path)
+        .spawn()
+        .map(|_| ())
+        .map_err(|e| format!("couldn't launch krill-markdown-viewer: {e}"))
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -68,6 +80,7 @@ pub fn run() {
             load_state,
             save_state,
             dev_test_file,
+            open_in_viewer,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
