@@ -1,11 +1,11 @@
 ---
 layout: app
 tagline: a calm markdown editor for Linux
-description: A minimal, keyboard-driven markdown editor for Linux. Typography-first, source-only by default, beautiful to write in.
-og_description: Typography-first, keyboard-driven, source-only markdown for Linux. Free and open source.
+description: A minimal markdown editor for Linux. Typography-first, source-only by default, beautiful to write in.
+og_description: Typography-first, source-only markdown for Linux. Free and open source.
 eyebrow: A markdown editor for Linux
 heading: "Write in <em>calm</em>, ship in markdown."
-lede: A minimal, keyboard-driven markdown editor. One file at a time.
+lede: A minimal markdown editor. One file at a time.
 features_heading: Built to get out of your way.
 features:
   - tag: Typography
@@ -68,6 +68,26 @@ extension: ".md"
   <span class="title">notes.md<span class="dirty">•</span></span>
   <span class="winbtns">─ ▢ ✕</span>
 </div>
+<style>
+  /* True-center the filename on the FULL titlebar (the theme's
+   * .pv-titlebar uses margin: 0 auto which only centers in the
+   * remaining flex space and shifts left of true center). */
+  .pv-titlebar { position: relative; }
+  .pv-titlebar .title {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    margin: 0;
+  }
+  .pv-titlebar .title .dirty {
+    position: absolute;
+    left: 100%;
+    top: 50%;
+    transform: translateY(-50%);
+    margin-left: 6px;
+  }
+</style>
 <div class="md-editor">
   <div class="col">
     <div class="h1"><span class="hash"># </span>On writing well</div>
@@ -83,6 +103,6 @@ extension: ".md"
   </div>
 </div>
 <div class="pv-status">
-  <span>notes.md · modified</span>
-  <span>182 words · UTF-8</span>
+  <span>v0.2.3</span>
+  <span>Ln 6 · Col 41 · UTF-8</span>
 </div>
