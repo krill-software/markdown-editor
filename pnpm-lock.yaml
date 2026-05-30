@@ -24,8 +24,8 @@ importers:
         specifier: ^6.34.1
         version: 6.41.1
       '@krill-software/desktop-ui':
-        specifier: github:krill-software/desktop-ui#v0.6.0
-        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/748f758076277ee1d54f3638beeefc556957e3e5(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)
+        specifier: github:krill-software/desktop-ui#v0.8.0
+        version: https://codeload.github.com/krill-software/desktop-ui/tar.gz/690ae23a5fe0e86d8851a4c827de355ff85b1c2a(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)
       '@lezer/common':
         specifier: ^1.2.1
         version: 1.5.2
@@ -276,9 +276,9 @@ packages:
   '@iconify/utils@3.1.0':
     resolution: {integrity: sha512-Zlzem1ZXhI1iHeeERabLNzBHdOa4VhQbqAcOQaMKuTuyZCpwKbC2R4Dd0Zo3g9EAc+Y4fiarO8HIHRAth7+skw==}
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/748f758076277ee1d54f3638beeefc556957e3e5':
-    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/748f758076277ee1d54f3638beeefc556957e3e5}
-    version: 0.6.0
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/690ae23a5fe0e86d8851a4c827de355ff85b1c2a':
+    resolution: {tarball: https://codeload.github.com/krill-software/desktop-ui/tar.gz/690ae23a5fe0e86d8851a4c827de355ff85b1c2a}
+    version: 0.8.0
     peerDependencies:
       '@tauri-apps/api': ^2.0.0
       '@tauri-apps/plugin-dialog': ^2.0.0
@@ -1260,7 +1260,7 @@ snapshots:
       '@iconify/types': 2.0.0
       mlly: 1.8.2
 
-  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/748f758076277ee1d54f3638beeefc556957e3e5(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)':
+  '@krill-software/desktop-ui@https://codeload.github.com/krill-software/desktop-ui/tar.gz/690ae23a5fe0e86d8851a4c827de355ff85b1c2a(@tauri-apps/api@2.10.1)(@tauri-apps/plugin-dialog@2.7.0)(@tauri-apps/plugin-process@2.3.1)(@tauri-apps/plugin-updater@2.10.1)':
     dependencies:
       '@tauri-apps/api': 2.10.1
       '@tauri-apps/plugin-dialog': 2.7.0
