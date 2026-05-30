@@ -26,3 +26,73 @@ features:
   - tag: Tauri · Rust
     title: Native Linux
     blurb: Small binary. Real file associations. No Electron.
+principles_heading: A quiet page.
+principles:
+  - strong: No chrome.
+    span: No toolbars, ribbons, or sidebars.
+  - strong: Keyboard first.
+    span: Mouse supported, never required.
+  - strong: One theme, locked.
+    span: A single light palette. The product has a look.
+  - strong: Stillness.
+    span: No popups, no toasts, no modals.
+extension: ".md"
+---
+<style>
+  .md-editor {
+    font-family: var(--mono);
+    font-size: 15px;
+    line-height: 1.7;
+    padding: 48px 8% 56px;
+    color: var(--ink);
+  }
+  .md-editor .col {
+    max-width: 62ch;
+    margin: 0 auto;
+  }
+  .md-editor .hash,
+  .md-editor .star,
+  .md-editor .bt {
+    color: var(--muted);
+  }
+  .md-editor .h1 {
+    font-size: 22px;
+    margin: 0 0 18px;
+  }
+  .md-editor p {
+    margin: 0 0 18px;
+  }
+  .md-editor .code {
+    background: rgba(48, 52, 63, 0.04);
+    padding: 1px 6px;
+    border-radius: 4px;
+  }
+  @media (max-width: 720px) {
+    .md-editor {
+      padding: 32px 6% 40px;
+      font-size: 14px;
+    }
+  }
+</style>
+<div class="pv-titlebar">
+  <span class="title">notes.md<span class="dirty">•</span></span>
+  <span class="winbtns">─ ▢ ✕</span>
+</div>
+<div class="md-editor">
+  <div class="col">
+    <div class="h1"><span class="hash"># </span>On writing well</div>
+    <p>
+      Good prose is clear before it is clever.
+      <span class="star">*</span>Delete<span class="star">*</span>
+      the middle of every sentence and see if it still stands.
+    </p>
+    <p>
+      Muted syntax means the <span class="star">**</span>text reads as text<span class="star">**</span> —
+      while <span class="code">`structure`</span> stays legible.<span class="pv-caret"></span>
+    </p>
+  </div>
+</div>
+<div class="pv-status">
+  <span>notes.md · modified</span>
+  <span>182 words · UTF-8</span>
+</div>
