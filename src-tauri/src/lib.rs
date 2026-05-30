@@ -1,11 +1,23 @@
+mod watch;
+
 use std::fs;
 use std::path::Path;
+use std::sync::Arc;
 
 use serde::{Deserialize, Serialize};
+use tauri::{AppHandle, State};
+use tokio::sync::Mutex;
 
 use krill_desktop_core::{fs as kfs, state as kstate, dev as kdev, updater::BuilderExt};
 
 const SLUG: &str = "krill-markdown-editor";
+
+#[derive(Default)]
+struct AppCtx {
+    /// Active file watcher, if any. Dropping it stops the watch.
+    /// Opening a new file swaps atomically: drop old, install new.
+    watch: Mutex<Option<watch::Watch>>,
+}
 
 #[derive(Debug, Serialize)]
 struct FileRead {
@@ -68,9 +80,34 @@ fn open_in_viewer(path: String) -> Result<(), String> {
         .map_err(|e| format!("couldn't launch krill-markdown-viewer: {e}"))
 }
 
+/// Start watching `path` for external changes. Emits the
+/// `file-changed` event whenever the file is modified on disk.
+/// Replaces any prior watcher.
+#[tauri::command]
+async fn watch_file(
+    path: String,
+    app: AppHandle,
+    state: State<'_, Arc<AppCtx>>,
+) -> Result<(), String> {
+    let mut g = state.watch.lock().await;
+    *g = None;
+    let w = watch::start(Path::new(&path), app).map_err(|e| format!("{e:#}"))?;
+    *g = Some(w);
+    Ok(())
+}
+
+/// Stop watching whatever's currently watched. No-op if nothing is.
+#[tauri::command]
+async fn stop_watching(state: State<'_, Arc<AppCtx>>) -> Result<(), String> {
+    *state.watch.lock().await = None;
+    Ok(())
+}
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
+    let ctx = Arc::new(AppCtx::default());
     tauri::Builder::default()
+        .manage(ctx)
         .with_updater()
         .plugin(tauri_plugin_cli::init())
         .plugin(tauri_plugin_dialog::init())
@@ -81,6 +118,8 @@ pub fn run() {
             save_state,
             dev_test_file,
             open_in_viewer,
+            watch_file,
+            stop_watching,
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

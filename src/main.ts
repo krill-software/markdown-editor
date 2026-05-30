@@ -5,6 +5,7 @@ import "katex/dist/katex.min.css";
 import { mountChrome, showBootError } from "@krill-software/desktop-ui";
 
 import { invoke } from "@tauri-apps/api/core";
+import { listen } from "@tauri-apps/api/event";
 import { getCurrentWindow, LogicalSize, LogicalPosition } from "@tauri-apps/api/window";
 import { getMatches } from "@tauri-apps/plugin-cli";
 import { confirm, open as openDialog, save as saveDialog } from "@tauri-apps/plugin-dialog";
@@ -79,9 +80,11 @@ function resetFontSize() {
 
 function updateTitle() {
   const name = docState.path ? basename(docState.path) : UNTITLED_NAME;
-  const mark = isDirty() ? " •" : "";
   if (titleEl) titleEl.textContent = name;
-  const label = `${name}${mark} — Markdown Editor`;
+  // Dirty marker is rendered by desktop-ui as an absolute-positioned ::after
+  // hung to the right of the filename, driven by body[data-dirty]. We don't
+  // duplicate it into document.title or the OS-level window title.
+  const label = `${name} — Markdown Editor`;
   document.title = label;
   getCurrentWindow().setTitle(label).catch(() => {});
 }
@@ -113,9 +116,72 @@ async function openPath(path: string) {
     docState.currentHash = docState.savedHash;
     updateTitle();
     updateStatus(normalized);
+    // Subscribe to disk-change events for the now-open file. Backend
+    // drops the prior watcher so swapping files doesn't double-watch.
+    try {
+      await invoke("watch_file", { path: res.path });
+    } catch (e) {
+      console.warn("watch_file failed (external-change banner disabled):", e);
+    }
   } catch (e) {
     console.error("open failed:", e);
   }
+}
+
+/// Reload the open file from disk, replacing the buffer. Snapshots the
+/// new content as the saved hash so the buffer is considered clean.
+/// Briefly suppresses the watcher's own write so the save we just did
+/// doesn't bounce back as an external change.
+async function reloadFromDisk(): Promise<void> {
+  if (!docState.path) return;
+  try {
+    const res = await invoke<{ path: string; contents: string }>("read_file", {
+      path: docState.path,
+    });
+    editor.setDoc(res.contents);
+    const normalized = editor.getDoc();
+    docState.savedHash = hash(normalized);
+    docState.currentHash = docState.savedHash;
+    updateTitle();
+    updateStatus(normalized);
+  } catch (e) {
+    console.error("reload failed:", e);
+  }
+}
+
+/// Non-blocking banner shown when the file changed externally while
+/// the buffer is dirty. Lets the user pick Reload (lose local edits)
+/// or Keep mine (lose disk changes, marks the buffer as the new truth
+/// so re-saving overwrites). Idempotent — multiple events dedupe to
+/// one banner.
+let externalChangeBanner: HTMLElement | null = null;
+function showExternalChangeBanner(): void {
+  if (externalChangeBanner) return;
+  const el = document.createElement("div");
+  el.className = "ext-change-banner";
+  el.innerHTML = `
+    <span>This file changed on disk.</span>
+    <button data-act="reload">Reload</button>
+    <button data-act="keep">Keep mine</button>
+  `;
+  el.addEventListener("click", (ev) => {
+    const t = ev.target as HTMLElement;
+    if (t.dataset.act === "reload") {
+      void reloadFromDisk().then(dismissExternalChangeBanner);
+    } else if (t.dataset.act === "keep") {
+      // Treat disk content as overwritten — re-baseline so the next
+      // save isn't a "merge with disk" surprise. We do NOT reload.
+      docState.savedHash = hash(editor.getDoc()) - 1; // force dirty
+      updateTitle();
+      dismissExternalChangeBanner();
+    }
+  });
+  document.body.appendChild(el);
+  externalChangeBanner = el;
+}
+function dismissExternalChangeBanner(): void {
+  externalChangeBanner?.remove();
+  externalChangeBanner = null;
 }
 
 async function openViaDialog() {
@@ -301,10 +367,10 @@ function initChrome() {
   }
 
   // Status line:
+  //   LEFT  (info) → app version (per STYLE.md convention)
   //   RIGHT (state) → mode badge + word count
   // Filename rides the titlebar; dirty rides body[data-dirty="true"].
-  // The info half stays empty — markdown documents don't have natural
-  // file-identity metrics to surface.
+  chrome.statusInfo!.textContent = `v${__APP_VERSION__}`;
   const modeSpan = document.createElement("span");
   modeSpan.id = "status-mode";
   chrome.statusState!.appendChild(modeSpan);
@@ -403,6 +469,18 @@ async function boot() {
   installMarginClickToggle();
   installEscapeHandler();
   await installWindowPersistence();
+
+  // External-change handling: when the open file changes on disk,
+  // reload silently if the buffer is clean, or show a Reload / Keep
+  // mine banner if the buffer is dirty.
+  await listen<string>("file-changed", (e) => {
+    if (!docState.path || e.payload !== docState.path) return;
+    if (isDirty()) {
+      showExternalChangeBanner();
+    } else {
+      void reloadFromDisk();
+    }
+  });
 
   let openedFromArg = false;
   try {

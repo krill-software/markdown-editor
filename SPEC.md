@@ -1,152 +1,217 @@
-# Markdown Editor — Spec (v1)
+# Markdown Editor — Spec
 
-A minimal, keyboard-driven markdown editor for Linux. Single-file oriented. Source-first with a toggleable preview. **The product is the UX, not the feature list** — the bar is iA Writer, not Obsidian.
+A minimal markdown editor for Linux. Single-file, source-only,
+typography-first. **The product is the UX, not the feature list** —
+the bar is iA Writer, not Obsidian.
+
+## In one sentence
+
+**A calm, source-only markdown editor that delegates rendering to
+its companion app, markdown-viewer.**
+
+## Identity
+
+| Where                | Value                                         |
+|----------------------|-----------------------------------------------|
+| Slug                 | `markdown-editor`                             |
+| Binary               | `krill-markdown-editor`                       |
+| Cargo package        | `krill-markdown-editor`                       |
+| Cargo lib            | `krill_markdown_editor_lib`                   |
+| `package.json` name  | `krill-markdown-editor`                       |
+| productName          | `Markdown Editor`                             |
+| State dir            | `$XDG_STATE_HOME/krill-markdown-editor/`      |
+| GitHub repo          | `krill-software/markdown-editor`              |
 
 ## Goals
 
-- Open, edit, save one `.md` file at a time — fast launch, no project/vault concept.
-- Source-only editor by default; press a key to flip to a rendered preview of the same file.
-- Feel like a native Linux desktop app (`.desktop` entry, file associations, XDG dirs).
-- **Feel beautiful to write in.** Typography, spacing, and calm are first-class requirements, not polish-phase work.
+- Open, edit, save one `.md` file at a time. Fast launch, no
+  project/vault concept.
+- Be a **pure authoring surface** — text + muted markdown syntax in
+  a calm typographic frame. No live preview, no split view.
+- Hand rendering off to **markdown-viewer** (companion app):
+  `Ctrl+Shift+V` opens the saved file in the viewer for inspection.
+- Feel like a native Linux app (`.desktop` entry, file association,
+  XDG dirs, real binary).
+- **Feel beautiful to write in.** Typography, spacing, and stillness
+  are first-class requirements, not polish.
 
-## Roadmap beyond v1
+## Non-goals (v1 and roadmap)
 
-- Focus mode was pulled forward into v1 (paragraph-scope; sentence-scope and per-file persistence are later refinements).
+- **No live preview mode.** Removed in favour of delegating to
+  markdown-viewer. The window stays in source view always.
+- **No WYSIWYG / hybrid rendered editing.**
+- No note vault, backlinks, tags, or graph view.
+- No multi-tab; one file per window.
+- No plugin system, cloud sync, or collaborative editing.
+- No dark mode (suite-wide constraint; system-following palette
+  inversion only).
+- No Windows / macOS builds.
 
 ## UX principles (iA Writer-inspired)
 
-These are binding, not aspirational. If a feature would compromise one of these, cut the feature.
+These are binding, not aspirational.
 
-1. **Typography first.** A beautiful monospace typeface, generous line-height, a centered/max-width text column. The writing surface should look like a well-set page, not a text box.
-2. **No chrome.** No toolbars, no ribbons, no sidebars. A subtle status line at the bottom (filename, dirty state, word count) and nothing else. Everything reachable by keyboard.
-3. **Muted markdown syntax.** `#`, `*`, `_`, backticks, link brackets etc. render dimmer than prose in edit mode, so the text reads as text while structure stays visible.
-4. **Calm palette.** Single light theme, locked. Soft ink, off-white background, muted olive for secondary text. No dark mode — the product has a look.
-5. **Stillness.** No animations beyond what's functionally necessary (cursor, scroll). No popups, toasts, or modals during normal writing.
-6. **Keyboard is primary.** Every action is reachable from the keyboard. Mouse is supported but never required.
-
-## Non-goals (v1)
-
-- No note vault / backlinks / tags / graph.
-- No WYSIWYG or inline-rendered hybrid editing.
-- No multi-tab or multi-window session management (one file per window).
-- No plugin system, no cloud sync, no collaborative editing.
-- No Windows/macOS builds.
+1. **Typography first.** Hasklig at 16px, centered ~70ch column,
+   generous line-height. The writing surface should look like a
+   well-set page, not a text box.
+2. **No chrome.** No toolbars, no ribbons, no sidebars. Just the
+   shared krill titlebar + status line.
+3. **Muted markdown syntax.** `#`, `*`, `_`, backticks, link
+   brackets render at ~40–50% contrast of body text so prose reads
+   as prose while structure stays legible.
+4. **Stillness.** No animations beyond cursor/scroll. No popups or
+   toasts during writing — only the calm external-change banner
+   if the open file is modified on disk while the buffer is dirty.
+5. **Keyboard primary.** Every action reachable from the keyboard.
 
 ## Stack
 
 - **Shell:** Tauri 2 (Rust backend + system webview).
-- **Frontend:** TypeScript + Vite. Editor component: CodeMirror 6.
-- **Chrome + palette:** [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui) (git dep). Provides the locked-palette CSS bundle, custom titlebar, menu bar, and status line via `mountChrome()`. App-specific style (mono body font, custom status-line backdrop) layers on top.
-- **Markdown → HTML:** `markdown-it` (CommonMark + GFM plugins) in the frontend.
-- **Syntax highlighting:** Shiki or `highlight.js` inside preview.
-- **Math:** KaTeX (auto-render on `$...$` and `$$...$$`).
-- **Diagrams:** Mermaid (rendered from ` ```mermaid ` fenced blocks).
-- **Export:** HTML via direct render; PDF via the webview's print-to-PDF API.
-
-Rationale: Tauri gives a small binary and real Rust file I/O. Doing markdown rendering in the webview keeps KaTeX/Mermaid/Shiki simple (they're all web-native).
+- **Frontend:** TypeScript + Vite. Editor: CodeMirror 6 (history,
+  line numbers, search, lineWrapping; no language modes beyond a
+  thin markdown decoration layer for syntax muting).
+- **Chrome:** [`@krill-software/desktop-ui`](https://github.com/krill-software/desktop-ui)
+  provides titlebar, menu, status line, palette tokens, bundled
+  JetBrains Mono + Hasklig, and the action registry.
+- **State / fs / file watcher:** [`krill-desktop-core`](https://github.com/krill-software/desktop-core)
+  for XDG dirs and file helpers; local `watch.rs` (notify-rs) for
+  the external-change watcher.
+- **Markdown rendering pipeline:** kept locally — `markdown-it` +
+  `markdown-it-task-lists` + `highlight.js` + `katex` + `mermaid`.
+  Used **only** by Export-to-HTML and the in-app Syntax Guide
+  reference, never as a live preview surface.
 
 ## Typography
 
-- **Default typeface:** **Hasklig** (open source, SIL OFL — a Source Code Pro fork with programming ligatures). Bundled with the app as WOFF2.
-- **Fallbacks:** `"Source Code Pro"`, `"JetBrains Mono"`, `ui-monospace`, `monospace`.
-- **Size:** 16px default, user-adjustable via `Ctrl+=` / `Ctrl+-` / `Ctrl+0` (persisted to state).
-- **Line height:** 1.6 in edit mode, 1.7 in preview.
-- **Text column:** max-width 70ch (edit) / ~68ch (preview), centered in the window. No full-width editing even on wide monitors.
-- **Padding:** generous vertical padding so the first and last lines are never flush against the window edge.
-- **Muted syntax tokens:** in edit mode, markdown markers (`#`, `*`, `_`, ``` ` ```, `[` `]`, `(` `)` in links, `>`, list bullets) render at ~40–50% contrast of body text. Implemented via CodeMirror decorations keyed off the markdown parser.
+| Surface         | Family       | Size  | Notes                              |
+|-----------------|--------------|-------|------------------------------------|
+| Editor body     | Hasklig      | 16px  | User-adjustable Ctrl = / − / 0     |
+| Chrome (menu, titlebar, status) | JetBrains Mono | 12px | From desktop-ui     |
+| Syntax-guide / exported HTML body | Charter | 16px | Bundled by app             |
+| Exported HTML headings | Inter   | varies | Bundled by app                   |
+
+- Centered text column, max 70ch (edit) / ~68ch (export).
+- Muted markdown markers via a CodeMirror decoration plugin
+  (`muted-markdown.ts`).
+- Font size persisted to state.
 
 ## Color
 
-Single theme (light only). Palette locked: https://coolors.co/30343f-878472-fafaff-ff82bf-dd7596
-
-| Role | Hex | Usage |
-|---|---|---|
-| Ghost White | `#FAFAFF` | Background |
-| Space Cadet | `#30343F` | Body text |
-| Artichoke | `#878472` | Muted — markdown syntax markers, status line, secondary text |
-| Shimmering Blush | `#DD7596` | Accent — cursor, selection tint, dirty dot, link color |
-| Brilliant Rose | `#FF82BF` | Reserved for strong/hover states in preview (links, callouts) |
-
-Dark theme is explicitly out of scope — not in v1, not in the roadmap. Single-palette design is a product decision.
+Locked palette from `@krill-software/desktop-ui`. See krill STYLE.md
+for the canonical set. No app-specific palette tokens.
 
 ## UX
 
 ### Modes
 
-1. **Edit mode** (default): full-window CodeMirror editing the raw markdown source.
-2. **Preview mode**: full-window rendered HTML of the current buffer. Read-only.
+The window is always in **edit mode**. There is no preview mode
+inside this app. To inspect rendered output, the user invokes
+`Ctrl+Shift+V` ("Open in Viewer"), which shells out to
+`krill-markdown-viewer` detached.
 
-A single key toggles between them (`Ctrl+E` tentative). No split view in v1.
+### Focus mode
 
-Preview mode uses **Inter** (bundled, SIL OFL) for headings and **Charter** (bundled, Bitstream → X Consortium permissive license) for body prose, with Hasklig kept for inline `code` and code blocks. Charter was chosen as the closest screen-optimized open substitute for Georgia (same designer as Georgia: Matthew Carter).
+`Ctrl+Shift+F` toggles paragraph focus — every line except the
+active paragraph fades to muted. No persistence per-file in v1.
 
 ### Window
 
-- Single window per file. Opening a second file launches a second process/window.
-- Title bar shows `<filename> [• if dirty] — Markdown`.
-- Remember last window size/position in `$XDG_STATE_HOME/krill-markdown-editor/window.json`.
+- Single window per file. Opening a second file launches a second
+  process/window.
+- Titlebar: filename centered, dirty marker (Shimmering Blush `•`)
+  hung absolute-right of the filename by desktop-ui's
+  `body[data-dirty]` rule. The OS-level window title is
+  `<filename> — Markdown Editor` (no inline dirty mark; the
+  visual marker carries it).
+- Status line: `vX.Y.Z` left (per STYLE.md convention); mode badge
+  + word count right.
+- Window geometry persisted to
+  `$XDG_STATE_HOME/krill-markdown-editor/state.json`.
 
-### Keybindings (v1)
+### Keybindings
 
-| Action | Key |
-|---|---|
-| Toggle edit/preview | `Ctrl+E` |
-| Toggle focus mode | `Ctrl+Shift+F` |
-| Increase/decrease/reset font size | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` |
-| Save | `Ctrl+S` |
-| Save As | `Ctrl+Shift+S` |
-| Open | `Ctrl+O` |
-| New (empty buffer) | `Ctrl+N` |
-| Export to HTML | `Ctrl+Shift+H` |
-| Export to PDF | `Ctrl+Shift+P` |
-| Quit | `Ctrl+Q` |
-
-Standard editor keys (undo/redo/find/replace) come from CodeMirror defaults.
+| Action                            | Key             |
+|-----------------------------------|-----------------|
+| Open                              | `Ctrl+O`        |
+| Save                              | `Ctrl+S`        |
+| Save As                           | `Ctrl+Shift+S`  |
+| New (empty buffer)                | `Ctrl+N`        |
+| Quit                              | `Ctrl+Q`        |
+| Open in Viewer                    | `Ctrl+Shift+V`  |
+| Focus mode                        | `Ctrl+Shift+F`  |
+| Export to HTML                    | `Ctrl+Shift+H`  |
+| Increase / decrease / reset font  | `Ctrl+=` / `Ctrl+-` / `Ctrl+0` |
+| Undo / Redo / Select-all          | CodeMirror defaults |
 
 ## File handling
 
-- **Formats:** `.md`, `.markdown`. UTF-8 only.
-- **Open from CLI:** `krill-markdown-editor path/to/file.md` opens directly in edit mode.
-- **Open with no arg:** empty untitled buffer; Save prompts for a path.
-- **Dirty tracking:** compare current buffer hash to on-disk hash. Prompt on close if dirty.
-- **External changes:** watch the open file; if it changes on disk and buffer is clean, reload. If dirty, show a non-blocking banner offering Reload / Keep Mine.
+- **Formats:** `.md`, `.markdown`, `.mdown`, `.mkd`. UTF-8 only.
+- **Open from CLI:** `krill-markdown-editor path/to/file.md`.
+- **Open with no arg:** empty untitled buffer.
+- **Dirty tracking:** compare current buffer hash to last-saved
+  hash. Confirm on close / open / new if dirty.
+- **External-change handling:** the open file's parent directory
+  is watched via `notify`. On a change event for the open file:
+  - If the buffer is **clean**, the file is silently reloaded.
+  - If the buffer is **dirty**, a calm bottom-right banner appears
+    with "Reload" (lose local edits) and "Keep mine" (re-baseline
+    so the next save overwrites disk).
 - **No autosave** in v1.
 
-## Markdown flavor
+## Markdown flavor (rendering pipeline)
 
-- CommonMark + GitHub-flavored extensions (tables, strikethrough, task lists, autolinks).
-- Front matter (`---` YAML block at top) is passed through visually (rendered as a dimmed code block in preview, editable as normal in source). No parsing of front matter values in v1.
+The rendering pipeline is **not** exposed as a live preview. It
+runs only when:
+- The user invokes Export-to-HTML (output written to a file).
+- The user opens the Syntax Guide (in-app reference document).
+
+It supports:
+- CommonMark + GitHub-flavored extensions (tables, strikethrough,
+  task lists, autolinks).
+- Syntax-highlighted code blocks via `highlight.js`.
+- Math: KaTeX, on `$…$` (inline) and `$$…$$` (block).
+- Diagrams: Mermaid, in `mermaid` fenced code blocks.
+- Front matter: `---` YAML block at top passed through visually.
 
 ## Export
 
-- **HTML:** self-contained file — inlined CSS, inlined KaTeX fonts (or CDN link, TBD), Mermaid rendered to inline SVG at export time.
-- **PDF:** via `webview.printToPdf()` on the preview DOM. Default paper: A4. No custom templates in v1.
+- **HTML:** self-contained file via `Ctrl+Shift+H`. Inlined CSS,
+  inlined bundled fonts (Charter, Inter, Hasklig), KaTeX CSS from
+  CDN, Mermaid rendered to inline SVG at export time.
+- **PDF:** **removed.** Use markdown-viewer's PDF export instead.
 
 ## Theming
 
-- One theme only — light, per the locked palette. No dark mode, no system following, no user-authored themes.
+Light only, suite-wide locked palette. No dark mode toggle, no
+theme picker, no user palettes. (The shared dark-mode response
+via `prefers-color-scheme` inverts background + ink only.)
 
 ## Linux integration
 
-- Ship a `.desktop` file with `MimeType=text/markdown;`.
+- `.desktop` entry with `MimeType=text/markdown;`.
 - Binary name: `krill-markdown-editor`.
-- Config: `$XDG_CONFIG_HOME/krill-markdown-editor/config.toml` (empty/optional in v1).
-- State: `$XDG_STATE_HOME/krill-markdown-editor/`.
-- Distribution: AppImage as primary artifact for v1. `.deb` and Flatpak deferred.
+- State: `$XDG_STATE_HOME/krill-markdown-editor/state.json`.
+- Distribution: AppImage + `.deb` via shared krill release
+  workflow. In-app updater wired through desktop-ui.
 
-## Out of scope / open questions
+## Open questions
 
-- Focus mode ships in v1 (paragraph-scope only; sentence-scope and per-file persistence are later refinements).
-- Spellcheck — not in v1.
-- Image paste / drag-drop — not in v1 (would need a sidecar assets strategy).
-- Whether KaTeX fonts ship inline in exported HTML or reference a CDN — decide during export impl.
-- Final palette hex values — pending a design pass before M2.
-- Whether to bundle a serif face for preview or rely on system serif — decide during M2.
+- Whether to drop the in-app Syntax Guide entirely and link to a
+  web reference (would let us remove the rendering pipeline from
+  this app's runtime). Deferred.
+- Whether the HTML export should self-contain KaTeX CSS (currently
+  via CDN, brittle if offline at view time).
 
 ## Milestones
 
-1. **M1 — Skeleton + typography:** Tauri app launches, opens a file via CLI arg, edits, saves. Hasklig bundled, centered 70ch text column, locked light palette, muted markdown syntax via CodeMirror decorations. **The app should already feel beautiful at M1** — everything after is features layered on top.
-2. **M2 — Preview:** `Ctrl+E` toggle, markdown-it rendering, syntax-highlighted code blocks, serif body in preview.
-3. **M3 — Math + diagrams:** KaTeX + Mermaid in preview.
-4. **M4 — Export:** HTML and PDF export paths.
-5. **M5 — Packaging:** `.desktop` file, AppImage build, MIME association.
+1. **M1 — Editor + typography.** Done. Tauri shell, CodeMirror
+   surface, Hasklig, muted syntax, save/open/new, status line,
+   font-size persistence.
+2. **M2 — Focus mode.** Done. `Ctrl+Shift+F` paragraph fade.
+3. **M3 — Companion handoff.** Done. `Ctrl+Shift+V` shells out to
+   `krill-markdown-viewer` for rendered output.
+4. **M4 — Export to HTML.** Done.
+5. **M5 — External-change watcher.** Done. Reload-if-clean,
+   banner-if-dirty.
+6. **M6 — Suite convention pass.** Done. Version in statusInfo,
+   dirty marker via desktop-ui, no inline dirty in document.title.

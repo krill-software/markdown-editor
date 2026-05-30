@@ -566,3 +566,37 @@ body[data-mode="syntax-guide"] #editor-root {
 
 /* Print stylesheet removed along with the in-app preview. PDF export
  * is handled by markdown-viewer (planned). */
+
+/* Banner shown when the open file changed on disk while the buffer
+ * was dirty. Pinned to the bottom corner, calm — no modal, no toast
+ * animation. Two actions: reload (lose local edits) or keep mine
+ * (re-baseline so saving overwrites disk). */
+.ext-change-banner {
+  position: fixed;
+  right: 20px;
+  bottom: 48px;
+  z-index: 50;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 14px;
+  background: var(--fm-bg);
+  border: 1px solid var(--fm-rule-strong);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(48, 52, 63, 0.12);
+  font-family: var(--fm-mono);
+  font-size: 12px;
+  color: var(--fm-text);
+}
+.ext-change-banner button {
+  font: inherit;
+  background: transparent;
+  border: 1px solid var(--fm-rule-strong);
+  border-radius: 4px;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--fm-text);
+}
+.ext-change-banner button:hover {
+  background: var(--fm-rule);
+}
