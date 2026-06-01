@@ -13,10 +13,10 @@
     "windows": [
       {
         "title": "Markdown Editor",
-        "width": 900,
-        "height": 720,
-        "minWidth": 480,
-        "minHeight": 360,
+        "width": 1296,
+        "height": 800,
+        "minWidth": 720,
+        "minHeight": 445,
         "decorations": false,
         "resizable": true,
         "center": true,
@@ -48,7 +48,10 @@
   },
   "bundle": {
     "active": true,
-    "targets": ["deb", "appimage"],
+    "targets": [
+      "deb",
+      "appimage"
+    ],
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
@@ -60,7 +63,12 @@
     "longDescription": "A beautiful, keyboard-driven markdown editor for Linux. Bundled Hasklig, Charter, and Inter fonts; math via KaTeX; diagrams via Mermaid.",
     "fileAssociations": [
       {
-        "ext": ["md", "markdown", "mdown", "mkd"],
+        "ext": [
+          "md",
+          "markdown",
+          "mdown",
+          "mkd"
+        ],
         "name": "Markdown Document",
         "description": "Markdown document",
         "mimeType": "text/markdown",
