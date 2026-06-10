@@ -5,10 +5,10 @@ import charterBold from "/src/assets/fonts/Charter-Bold.woff2?url";
 import charterBoldIt from "/src/assets/fonts/Charter-BoldItalic.woff2?url";
 import charterIt from "/src/assets/fonts/Charter-Italic.woff2?url";
 import charterReg from "/src/assets/fonts/Charter-Regular.woff2?url";
-import hasklgBold from "/src/assets/fonts/Hasklig-Bold.woff2?url";
-import hasklgBoldIt from "/src/assets/fonts/Hasklig-BoldItalic.woff2?url";
-import hasklgIt from "/src/assets/fonts/Hasklig-Italic.woff2?url";
-import hasklgReg from "/src/assets/fonts/Hasklig-Regular.woff2?url";
+import jbmBold from "/src/assets/fonts/JetBrainsMono-Bold.woff2?url";
+import jbmBoldIt from "/src/assets/fonts/JetBrainsMono-BoldItalic.woff2?url";
+import jbmIt from "/src/assets/fonts/JetBrainsMono-Italic.woff2?url";
+import jbmReg from "/src/assets/fonts/JetBrainsMono-Regular.woff2?url";
 import interBold from "/src/assets/fonts/Inter-Bold.woff2?url";
 import interReg from "/src/assets/fonts/Inter-Regular.woff2?url";
 import interSB from "/src/assets/fonts/Inter-SemiBold.woff2?url";
@@ -30,10 +30,10 @@ const FONTS: FontSpec[] = [
   { family: "Inter", weight: 400, style: "normal", url: interReg },
   { family: "Inter", weight: 600, style: "normal", url: interSB },
   { family: "Inter", weight: 700, style: "normal", url: interBold },
-  { family: "Hasklig", weight: 400, style: "normal", url: hasklgReg },
-  { family: "Hasklig", weight: 700, style: "normal", url: hasklgBold },
-  { family: "Hasklig", weight: 400, style: "italic", url: hasklgIt },
-  { family: "Hasklig", weight: 700, style: "italic", url: hasklgBoldIt },
+  { family: "JetBrains Mono", weight: 400, style: "normal", url: jbmReg },
+  { family: "JetBrains Mono", weight: 700, style: "normal", url: jbmBold },
+  { family: "JetBrains Mono", weight: 400, style: "italic", url: jbmIt },
+  { family: "JetBrains Mono", weight: 700, style: "italic", url: jbmBoldIt },
 ];
 
 const KATEX_CSS_CDN =
@@ -68,7 +68,7 @@ async function buildFontFaceCss(): Promise<string> {
 
 const PREVIEW_CSS = `
 :root {
-  --fm-mono: "Hasklig", "Source Code Pro", "JetBrains Mono", ui-monospace, monospace;
+  --fm-mono: "JetBrains Mono", ui-monospace, monospace;
   --fm-serif: "Charter", Georgia, "Liberation Serif", serif;
   --fm-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
   --fm-bg: #FAFAFF;

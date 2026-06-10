@@ -60,7 +60,7 @@
     ],
     "category": "Productivity",
     "shortDescription": "Markdown editor",
-    "longDescription": "A beautiful, keyboard-driven markdown editor for Linux. Bundled Hasklig, Charter, and Inter fonts; math via KaTeX; diagrams via Mermaid.",
+    "longDescription": "A beautiful, keyboard-driven markdown editor for Linux. Bundled JetBrains Mono, Charter, and Inter fonts; math via KaTeX; diagrams via Mermaid.",
     "fileAssociations": [
       {
         "ext": [

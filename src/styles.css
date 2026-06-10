@@ -1,6 +1,6 @@
 /* Markdown-editor app-specific tokens. The 5 named palette colors,
  * Space-Cadet alpha rules, and the --fm-mono/--fm-sans/--fm-serif family
- * tokens (with their bundled Inter/Charter/Hasklig/JetBrains faces) all
+ * tokens (with their bundled Inter/Charter/JetBrains faces) all
  * come from @krill-software/desktop-ui — this app no longer redeclares
  * them. The local woff2 in src/assets/fonts/ remain ONLY because
  * src/export.ts embeds them into exported HTML; they are not used for
