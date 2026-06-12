@@ -447,9 +447,13 @@ body[data-mode="syntax-guide"] #editor-root {
   padding: 0;
 }
 
-.cm-cursor {
-  border-left-color: var(--fm-accent);
-  border-left-width: 2px;
+.cm-cursor,
+.cm-dropCursor {
+  /* CodeMirror injects its base theme (black 1.2px caret) with scoped
+   * selectors that outrank a bare class — and it never knows about dark
+   * mode, so the caret was invisible there. !important mirrors how
+   * .cm-selectionBackground below wins the same fight. */
+  border-left: 2px solid var(--fm-accent) !important;
 }
 
 .cm-selectionBackground,
